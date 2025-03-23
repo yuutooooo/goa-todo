@@ -17,6 +17,26 @@ import (
 	goahttp "goa.design/goa/v3/http"
 )
 
+// CORSミドルウェアを定義
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// CORS対応のヘッダーを設定
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+		// OPTIONSリクエストの場合は、ここで処理を終了
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// 次のハンドラを呼び出す
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	// ロガーの設定
 	logger := log.New(os.Stdout, "[todo-app] ", log.Ltime)
@@ -77,10 +97,13 @@ func main() {
 		logger.Printf("Memo API: %s %s mounted on %s", m.Method, m.Verb, m.Pattern)
 	}
 
+	// CORSミドルウェアを適用
+	handler := corsMiddleware(mux)
+
 	// サーバーの起動
 	port := "8000"
 	logger.Printf("HTTP server listening on :%s", port)
-	if err := http.ListenAndServe(":"+port, mux); err != nil {
+	if err := http.ListenAndServe(":"+port, handler); err != nil {
 		logger.Fatalf("サーバー起動エラー: %v", err)
 	}
 }
