@@ -1,13 +1,20 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button, TextField, Container, Typography, Box, Alert } from '@mui/material';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Button,
+  TextField,
+  Container,
+  Typography,
+  Box,
+  Alert,
+} from "@mui/material";
+import { useAuth } from "../../contexts/AuthContext";
 
 const RegisterForm: React.FC = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
   const { register, error: authError } = useAuth();
   const navigate = useNavigate();
@@ -18,25 +25,25 @@ const RegisterForm: React.FC = () => {
 
     // 入力バリデーション
     if (!name) {
-      setLocalError('名前を入力してください');
+      setLocalError("名前を入力してください");
       return;
     }
     if (!email) {
-      setLocalError('メールアドレスを入力してください');
+      setLocalError("メールアドレスを入力してください");
       return;
     }
     if (!password) {
-      setLocalError('パスワードを入力してください');
+      setLocalError("パスワードを入力してください");
       return;
     }
     if (password !== confirmPassword) {
-      setLocalError('パスワードが一致しません');
+      setLocalError("パスワードが一致しません");
       return;
     }
 
     try {
       await register({ name, email, password });
-      navigate('/todos'); // 登録成功したらTodo一覧ページへ
+      navigate("/todos"); // 登録成功したらTodo一覧ページへ
     } catch (error) {
       // エラーはAuthContextで処理済み
     }
@@ -47,16 +54,16 @@ const RegisterForm: React.FC = () => {
       <Box
         sx={{
           marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
         }}
       >
         <Typography component="h1" variant="h5">
           アカウント登録
         </Typography>
         {(localError || authError) && (
-          <Alert severity="error" sx={{ width: '100%', mt: 2 }}>
+          <Alert severity="error" sx={{ width: "100%", mt: 2 }}>
             {localError || authError}
           </Alert>
         )}
@@ -113,11 +120,7 @@ const RegisterForm: React.FC = () => {
           >
             登録
           </Button>
-          <Button
-            fullWidth
-            variant="text"
-            onClick={() => navigate('/login')}
-          >
+          <Button fullWidth variant="text" onClick={() => navigate("/login")}>
             既にアカウントをお持ちの方はこちら
           </Button>
         </Box>
@@ -126,4 +129,4 @@ const RegisterForm: React.FC = () => {
   );
 };
 
-export default RegisterForm; 
+export default RegisterForm;

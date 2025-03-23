@@ -17,7 +17,7 @@ apiClient.interceptors.response.use(
       `APIClient: [${
         response.status
       }] ${response.config.method?.toUpperCase()} ${response.config.url}`,
-      response.data
+      response.data,
     );
     return response;
   },
@@ -26,10 +26,10 @@ apiClient.interceptors.response.use(
       `APIClient: Error [${
         error.response?.status || "NETWORK"
       }] ${error.config?.method?.toUpperCase()} ${error.config?.url}`,
-      error.response?.data || error.message
+      error.response?.data || error.message,
     );
     return Promise.reject(error);
-  }
+  },
 );
 
 // リクエストインターセプター（認証関連のログ出力）
@@ -37,14 +37,14 @@ apiClient.interceptors.request.use(
   (config) => {
     // トークン認証は使用しない
     console.log(
-      `APIClient: Request to ${config.method?.toUpperCase()} ${config.url}`
+      `APIClient: Request to ${config.method?.toUpperCase()} ${config.url}`,
     );
     return config;
   },
   (error) => {
     console.error("APIClient: Request error:", error);
     return Promise.reject(error);
-  }
+  },
 );
 
 // ユーザー関連API
@@ -105,7 +105,7 @@ export const todoApi = {
   // Todo更新
   updateTodo: (
     todoId: number,
-    data: { title?: string; description?: string; completed?: boolean }
+    data: { title?: string; description?: string; completed?: boolean },
   ) => {
     const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
     if (!currentUser.id) {
@@ -146,7 +146,7 @@ export const memoApi = {
       return Promise.reject(new Error("User ID is required"));
     }
     return apiClient.get(
-      `/users/${currentUser.id}/todos/${todoId}/memos/${memoId}`
+      `/users/${currentUser.id}/todos/${todoId}/memos/${memoId}`,
     );
   },
 
@@ -159,7 +159,7 @@ export const memoApi = {
     }
     return apiClient.post(
       `/users/${currentUser.id}/todos/${todoId}/memos`,
-      data
+      data,
     );
   },
 
@@ -172,7 +172,7 @@ export const memoApi = {
     }
     return apiClient.put(
       `/users/${currentUser.id}/todos/${todoId}/memos/${memoId}`,
-      data
+      data,
     );
   },
 
@@ -184,7 +184,7 @@ export const memoApi = {
       return Promise.reject(new Error("User ID is required"));
     }
     return apiClient.delete(
-      `/users/${currentUser.id}/todos/${todoId}/memos/${memoId}`
+      `/users/${currentUser.id}/todos/${todoId}/memos/${memoId}`,
     );
   },
 };

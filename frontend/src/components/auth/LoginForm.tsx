@@ -1,11 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Button, TextField, Container, Typography, Box, Alert } from '@mui/material';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import {
+  Button,
+  TextField,
+  Container,
+  Typography,
+  Box,
+  Alert,
+} from "@mui/material";
+import { useAuth } from "../../contexts/AuthContext";
 
 const LoginForm: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
   const { login, error: authError, user } = useAuth();
   const navigate = useNavigate();
@@ -14,8 +21,8 @@ const LoginForm: React.FC = () => {
   // ユーザーがログインしている場合、リダイレクト
   useEffect(() => {
     if (user) {
-      console.log('LoginForm: User already logged in, redirecting to /todos');
-      navigate('/todos', { replace: true });
+      console.log("LoginForm: User already logged in, redirecting to /todos");
+      navigate("/todos", { replace: true });
     }
   }, [user, navigate]);
 
@@ -25,26 +32,26 @@ const LoginForm: React.FC = () => {
 
     // 入力バリデーション
     if (!email) {
-      setLocalError('メールアドレスを入力してください');
+      setLocalError("メールアドレスを入力してください");
       return;
     }
     if (!password) {
-      setLocalError('パスワードを入力してください');
+      setLocalError("パスワードを入力してください");
       return;
     }
 
-    console.log('LoginForm: Attempting login...');
+    console.log("LoginForm: Attempting login...");
     try {
       await login({ email, password });
-      console.log('LoginForm: Login successful, redirecting to /todos');
-      
+      console.log("LoginForm: Login successful, redirecting to /todos");
+
       // ログイン後のリダイレクト先を決定
       // stateから遷移元URLを取得するか、デフォルトで/todosに遷移
-      const fromPath = (location.state as any)?.from?.pathname || '/todos';
+      const fromPath = (location.state as any)?.from?.pathname || "/todos";
       console.log(`LoginForm: Redirecting to ${fromPath}`);
       navigate(fromPath, { replace: true });
     } catch (error) {
-      console.error('LoginForm: Login failed', error);
+      console.error("LoginForm: Login failed", error);
       // エラーはAuthContextで処理済み
     }
   };
@@ -54,16 +61,16 @@ const LoginForm: React.FC = () => {
       <Box
         sx={{
           marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
         }}
       >
         <Typography component="h1" variant="h5">
           ログイン
         </Typography>
         {(localError || authError) && (
-          <Alert severity="error" sx={{ width: '100%', mt: 2 }}>
+          <Alert severity="error" sx={{ width: "100%", mt: 2 }}>
             {localError || authError}
           </Alert>
         )}
@@ -103,7 +110,7 @@ const LoginForm: React.FC = () => {
           <Button
             fullWidth
             variant="text"
-            onClick={() => navigate('/register')}
+            onClick={() => navigate("/register")}
           >
             アカウント登録はこちら
           </Button>
@@ -113,4 +120,4 @@ const LoginForm: React.FC = () => {
   );
 };
 
-export default LoginForm; 
+export default LoginForm;
