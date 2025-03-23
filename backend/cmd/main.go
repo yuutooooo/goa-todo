@@ -21,7 +21,8 @@ import (
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// CORS対応のヘッダーを設定
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+		// w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000, http://localhost:8081")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -83,7 +84,6 @@ func main() {
 	usersvr.Mount(mux, userHandler)
 	todosvr.Mount(mux, todoHandler)
 	memosvr.Mount(mux, memoHandler)
-
 	// ルートのログ出力
 	for _, m := range userHandler.Mounts {
 		logger.Printf("User API: %s %s mounted on %s", m.Method, m.Verb, m.Pattern)
@@ -96,6 +96,24 @@ func main() {
 	for _, m := range memoHandler.Mounts {
 		logger.Printf("Memo API: %s %s mounted on %s", m.Method, m.Verb, m.Pattern)
 	}
+
+	// OpenAPI仕様ファイルの提供
+	mux.Handle("GET", "/openapi.json", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		http.ServeFile(w, r, "gen/http/openapi.json")
+	}))
+
+	// Swagger UI の提供
+	mux.Handle("GET", "/swagger/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		http.StripPrefix("/swagger/", http.FileServer(http.Dir("swagger-ui"))).ServeHTTP(w, r)
+	}))
+
+	// Swagger UIのルートパスへのリダイレクト
+	mux.Handle("GET", "/swagger", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/swagger/", http.StatusMovedPermanently)
+	}))
 
 	// CORSミドルウェアを適用
 	handler := corsMiddleware(mux)
