@@ -1,4 +1,4 @@
-# goa-todo
+# goa-react
 
 ## アプリケーション概要
 
