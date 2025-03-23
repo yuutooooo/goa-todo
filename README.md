@@ -9,7 +9,8 @@
 ### バックエンド
 - **言語**: Go
 - **フレームワーク**: Goa（APIデザインフレームワーク）
-- **データベース**: SQLite（開発環境）
+- **データベース**: MySQL（開発環境）
+- **データベースクライアント**: PHPMyAdmin
 - **API仕様**: OpenAPI（Swagger）
 
 ### フロントエンド
@@ -56,4 +57,11 @@ cd backend && go run cmd/main.go
 # フロントエンド起動
 cd frontend && npm start
 ```
+
+- アプリケーションURL
+  http://localhost:3000
+- phpmyadmin
+  http://localhost:8080/
+- api仕様書(swagger UI)
+  http://localhost:8000/swagger/
 
