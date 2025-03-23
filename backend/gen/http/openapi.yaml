@@ -1,0 +1,976 @@
+swagger: "2.0"
+info:
+    title: Todo App
+    description: ユーザー登録からタスク管理、メモ追加までのアプリ
+    version: 0.0.1
+host: localhost:8000
+consumes:
+    - application/json
+    - application/xml
+    - application/gob
+produces:
+    - application/json
+    - application/xml
+    - application/gob
+paths:
+    /login:
+        post:
+            tags:
+                - user
+            summary: login user
+            description: ユーザーログイン処理を行います
+            operationId: user#login
+            parameters:
+                - name: LoginRequestBody
+                  in: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/LoginPayload'
+                    required:
+                        - email
+                        - password
+            responses:
+                "200":
+                    description: OK response.
+                    schema:
+                        $ref: '#/definitions/UserResult'
+                        required:
+                            - id
+                            - name
+                            - email
+                            - created_at
+                            - updated_at
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/APIErrorResult'
+                        required:
+                            - name
+                            - message
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        $ref: '#/definitions/APIErrorResult'
+                        required:
+                            - name
+                            - message
+            schemes:
+                - http
+    /users:
+        post:
+            tags:
+                - user
+            summary: create user
+            description: 新規ユーザーを作成します
+            operationId: user#create
+            parameters:
+                - name: CreateRequestBody
+                  in: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/User'
+                    required:
+                        - name
+                        - email
+                        - password
+            responses:
+                "201":
+                    description: Created response.
+                    schema:
+                        $ref: '#/definitions/UserResult'
+                        required:
+                            - id
+                            - name
+                            - email
+                            - created_at
+                            - updated_at
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/APIErrorResult'
+                        required:
+                            - name
+                            - message
+            schemes:
+                - http
+    /users/{user_id}:
+        get:
+            tags:
+                - user
+            summary: get user
+            description: ユーザー情報を取得します
+            operationId: user#get
+            parameters:
+                - name: user_id
+                  in: path
+                  description: ユーザーID
+                  required: true
+                  type: integer
+            responses:
+                "200":
+                    description: OK response.
+                    schema:
+                        $ref: '#/definitions/UserResult'
+                        required:
+                            - id
+                            - name
+                            - email
+                            - created_at
+                            - updated_at
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/APIErrorResult'
+                        required:
+                            - name
+                            - message
+            schemes:
+                - http
+        put:
+            tags:
+                - user
+            summary: update user
+            description: ユーザー情報を更新します
+            operationId: user#update
+            parameters:
+                - name: user_id
+                  in: path
+                  description: ユーザーID
+                  required: true
+                  type: integer
+                - name: UpdateRequestBody
+                  in: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/UserUpdateRequestBody'
+            responses:
+                "200":
+                    description: OK response.
+                    schema:
+                        $ref: '#/definitions/UserResult'
+                        required:
+                            - id
+                            - name
+                            - email
+                            - created_at
+                            - updated_at
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/APIErrorResult'
+                        required:
+                            - name
+                            - message
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/APIErrorResult'
+                        required:
+                            - name
+                            - message
+            schemes:
+                - http
+        delete:
+            tags:
+                - user
+            summary: delete user
+            description: ユーザーを削除します
+            operationId: user#delete
+            parameters:
+                - name: user_id
+                  in: path
+                  description: ユーザーID
+                  required: true
+                  type: integer
+            responses:
+                "204":
+                    description: No Content response.
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/APIErrorResult'
+                        required:
+                            - name
+                            - message
+            schemes:
+                - http
+    /users/{user_id}/todos:
+        get:
+            tags:
+                - todo
+            summary: list todo
+            description: タスク一覧を取得します
+            operationId: todo#list
+            parameters:
+                - name: completed
+                  in: query
+                  description: 完了済みタスクのみ取得
+                  required: false
+                  type: boolean
+                  default: false
+                - name: user_id
+                  in: path
+                  description: ユーザーID
+                  required: true
+                  type: integer
+            responses:
+                "200":
+                    description: OK response.
+                    schema:
+                        $ref: '#/definitions/TodoCollection'
+            schemes:
+                - http
+        post:
+            tags:
+                - todo
+            summary: create todo
+            description: 新規タスクを作成します
+            operationId: todo#create
+            parameters:
+                - name: user_id
+                  in: path
+                  description: ユーザーID
+                  required: true
+                  type: integer
+                - name: CreateRequestBody
+                  in: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/TodoCreateRequestBody'
+                    required:
+                        - title
+                        - description
+            responses:
+                "201":
+                    description: Created response.
+                    schema:
+                        $ref: '#/definitions/TodoResult'
+                        required:
+                            - id
+                            - user_id
+                            - title
+                            - description
+                            - completed
+                            - created_at
+                            - updated_at
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/APIErrorResult'
+                        required:
+                            - name
+                            - message
+            schemes:
+                - http
+    /users/{user_id}/todos/{todo_id}:
+        get:
+            tags:
+                - todo
+            summary: get todo
+            description: タスク詳細を取得します
+            operationId: todo#get
+            parameters:
+                - name: user_id
+                  in: path
+                  description: ユーザーID
+                  required: true
+                  type: integer
+                - name: todo_id
+                  in: path
+                  description: タスクID
+                  required: true
+                  type: integer
+            responses:
+                "200":
+                    description: OK response.
+                    schema:
+                        $ref: '#/definitions/TodoResult'
+                        required:
+                            - id
+                            - user_id
+                            - title
+                            - description
+                            - completed
+                            - created_at
+                            - updated_at
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/APIErrorResult'
+                        required:
+                            - name
+                            - message
+            schemes:
+                - http
+        put:
+            tags:
+                - todo
+            summary: update todo
+            description: タスクを更新します
+            operationId: todo#update
+            parameters:
+                - name: user_id
+                  in: path
+                  description: ユーザーID
+                  required: true
+                  type: integer
+                - name: todo_id
+                  in: path
+                  description: タスクID
+                  required: true
+                  type: integer
+                - name: UpdateRequestBody
+                  in: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/TodoUpdateRequestBody'
+            responses:
+                "200":
+                    description: OK response.
+                    schema:
+                        $ref: '#/definitions/TodoResult'
+                        required:
+                            - id
+                            - user_id
+                            - title
+                            - description
+                            - completed
+                            - created_at
+                            - updated_at
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/APIErrorResult'
+                        required:
+                            - name
+                            - message
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/APIErrorResult'
+                        required:
+                            - name
+                            - message
+            schemes:
+                - http
+        delete:
+            tags:
+                - todo
+            summary: delete todo
+            description: タスクを削除します
+            operationId: todo#delete
+            parameters:
+                - name: user_id
+                  in: path
+                  description: ユーザーID
+                  required: true
+                  type: integer
+                - name: todo_id
+                  in: path
+                  description: タスクID
+                  required: true
+                  type: integer
+            responses:
+                "204":
+                    description: No Content response.
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/APIErrorResult'
+                        required:
+                            - name
+                            - message
+            schemes:
+                - http
+    /users/{user_id}/todos/{todo_id}/memos:
+        get:
+            tags:
+                - memo
+            summary: list memo
+            description: タスクに関連するメモ一覧を取得します
+            operationId: memo#list
+            parameters:
+                - name: user_id
+                  in: path
+                  description: ユーザーID
+                  required: true
+                  type: integer
+                - name: todo_id
+                  in: path
+                  description: タスクID
+                  required: true
+                  type: integer
+            responses:
+                "200":
+                    description: OK response.
+                    schema:
+                        $ref: '#/definitions/MemoCollection'
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/APIErrorResult'
+                        required:
+                            - name
+                            - message
+            schemes:
+                - http
+        post:
+            tags:
+                - memo
+            summary: create memo
+            description: 新規メモを作成します
+            operationId: memo#create
+            parameters:
+                - name: user_id
+                  in: path
+                  description: ユーザーID
+                  required: true
+                  type: integer
+                - name: todo_id
+                  in: path
+                  description: タスクID
+                  required: true
+                  type: integer
+                - name: CreateRequestBody
+                  in: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/MemoCreateRequestBody'
+                    required:
+                        - content
+            responses:
+                "201":
+                    description: Created response.
+                    schema:
+                        $ref: '#/definitions/MemoResult'
+                        required:
+                            - id
+                            - todo_id
+                            - content
+                            - created_at
+                            - updated_at
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/APIErrorResult'
+                        required:
+                            - name
+                            - message
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/APIErrorResult'
+                        required:
+                            - name
+                            - message
+            schemes:
+                - http
+    /users/{user_id}/todos/{todo_id}/memos/{memo_id}:
+        get:
+            tags:
+                - memo
+            summary: get memo
+            description: メモ詳細を取得します
+            operationId: memo#get
+            parameters:
+                - name: user_id
+                  in: path
+                  description: ユーザーID
+                  required: true
+                  type: integer
+                - name: todo_id
+                  in: path
+                  description: タスクID
+                  required: true
+                  type: integer
+                - name: memo_id
+                  in: path
+                  description: メモID
+                  required: true
+                  type: integer
+            responses:
+                "200":
+                    description: OK response.
+                    schema:
+                        $ref: '#/definitions/MemoResult'
+                        required:
+                            - id
+                            - todo_id
+                            - content
+                            - created_at
+                            - updated_at
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/APIErrorResult'
+                        required:
+                            - name
+                            - message
+            schemes:
+                - http
+        put:
+            tags:
+                - memo
+            summary: update memo
+            description: メモを更新します
+            operationId: memo#update
+            parameters:
+                - name: user_id
+                  in: path
+                  description: ユーザーID
+                  required: true
+                  type: integer
+                - name: todo_id
+                  in: path
+                  description: タスクID
+                  required: true
+                  type: integer
+                - name: memo_id
+                  in: path
+                  description: メモID
+                  required: true
+                  type: integer
+                - name: UpdateRequestBody
+                  in: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/MemoUpdateRequestBody'
+                    required:
+                        - content
+            responses:
+                "200":
+                    description: OK response.
+                    schema:
+                        $ref: '#/definitions/MemoResult'
+                        required:
+                            - id
+                            - todo_id
+                            - content
+                            - created_at
+                            - updated_at
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/APIErrorResult'
+                        required:
+                            - name
+                            - message
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/APIErrorResult'
+                        required:
+                            - name
+                            - message
+            schemes:
+                - http
+        delete:
+            tags:
+                - memo
+            summary: delete memo
+            description: メモを削除します
+            operationId: memo#delete
+            parameters:
+                - name: user_id
+                  in: path
+                  description: ユーザーID
+                  required: true
+                  type: integer
+                - name: todo_id
+                  in: path
+                  description: タスクID
+                  required: true
+                  type: integer
+                - name: memo_id
+                  in: path
+                  description: メモID
+                  required: true
+                  type: integer
+            responses:
+                "204":
+                    description: No Content response.
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/APIErrorResult'
+                        required:
+                            - name
+                            - message
+            schemes:
+                - http
+definitions:
+    APIErrorResult:
+        title: APIErrorResult
+        type: object
+        properties:
+            message:
+                type: string
+                description: エラーメッセージ
+                example: Quod necessitatibus ipsam recusandae assumenda et.
+            name:
+                type: string
+                description: エラー名
+                example: Atque voluptatem repudiandae aliquam accusantium.
+        example:
+            message: Doloribus vero.
+            name: Corporis quia.
+        required:
+            - name
+            - message
+    LoginPayload:
+        title: LoginPayload
+        type: object
+        properties:
+            email:
+                type: string
+                description: メールアドレス
+                example: Neque similique laborum cumque odio ea in.
+            password:
+                type: string
+                description: パスワード
+                example: Expedita ut id deserunt.
+        example:
+            email: Nihil ex praesentium iure.
+            password: Voluptatem temporibus ex corporis debitis cum saepe.
+        required:
+            - email
+            - password
+    MemoCollection:
+        title: 'Mediatype identifier: application/vnd.memo-collection+json; view=default'
+        type: object
+        properties:
+            items:
+                type: array
+                items:
+                    $ref: '#/definitions/MemoResult'
+                example:
+                    - content: Aperiam ipsam est et corrupti.
+                      created_at: Commodi modi.
+                      id: 1802629760090586602
+                      todo_id: 9197192169357682298
+                      updated_at: Quibusdam consectetur rem.
+                    - content: Aperiam ipsam est et corrupti.
+                      created_at: Commodi modi.
+                      id: 1802629760090586602
+                      todo_id: 9197192169357682298
+                      updated_at: Quibusdam consectetur rem.
+        description: ListResponseBody result type (default view)
+        example:
+            items:
+                - content: Aperiam ipsam est et corrupti.
+                  created_at: Commodi modi.
+                  id: 1802629760090586602
+                  todo_id: 9197192169357682298
+                  updated_at: Quibusdam consectetur rem.
+                - content: Aperiam ipsam est et corrupti.
+                  created_at: Commodi modi.
+                  id: 1802629760090586602
+                  todo_id: 9197192169357682298
+                  updated_at: Quibusdam consectetur rem.
+                - content: Aperiam ipsam est et corrupti.
+                  created_at: Commodi modi.
+                  id: 1802629760090586602
+                  todo_id: 9197192169357682298
+                  updated_at: Quibusdam consectetur rem.
+                - content: Aperiam ipsam est et corrupti.
+                  created_at: Commodi modi.
+                  id: 1802629760090586602
+                  todo_id: 9197192169357682298
+                  updated_at: Quibusdam consectetur rem.
+    MemoCreateRequestBody:
+        title: MemoCreateRequestBody
+        type: object
+        properties:
+            content:
+                type: string
+                description: メモの内容
+                example: qzz
+                minLength: 3
+        example:
+            content: y8v
+        required:
+            - content
+    MemoResult:
+        title: MemoResult
+        type: object
+        properties:
+            content:
+                type: string
+                description: メモの内容
+                example: Doloribus amet minima nobis et qui aperiam.
+            created_at:
+                type: string
+                description: 作成日時
+                example: Iure laborum aliquid sint exercitationem praesentium dolorem.
+            id:
+                type: integer
+                description: メモのid
+                example: 6302574532415754510
+                format: int64
+            todo_id:
+                type: integer
+                description: タスクID
+                example: 3580249678140482445
+                format: int64
+            updated_at:
+                type: string
+                description: 更新日時
+                example: Repudiandae sint labore aut nostrum aut.
+        example:
+            content: Dolor ut.
+            created_at: Aut dolore sit suscipit ipsa.
+            id: 2834087471632377528
+            todo_id: 2711658613265190445
+            updated_at: Voluptatem et molestias repellendus.
+        required:
+            - id
+            - todo_id
+            - content
+            - created_at
+            - updated_at
+    MemoUpdateRequestBody:
+        title: MemoUpdateRequestBody
+        type: object
+        properties:
+            content:
+                type: string
+                description: メモの内容
+                example: glg
+                minLength: 3
+        example:
+            content: nye
+        required:
+            - content
+    TodoCollection:
+        title: 'Mediatype identifier: application/vnd.todo-collection+json; view=default'
+        type: object
+        properties:
+            items:
+                type: array
+                items:
+                    $ref: '#/definitions/TodoResult'
+                example:
+                    - completed: false
+                      created_at: Saepe fuga.
+                      description: Voluptatibus aut porro magni illo.
+                      id: 2013064543521667783
+                      title: Vel ut.
+                      updated_at: Dolor eligendi.
+                      user_id: 5834212301389507050
+                    - completed: false
+                      created_at: Saepe fuga.
+                      description: Voluptatibus aut porro magni illo.
+                      id: 2013064543521667783
+                      title: Vel ut.
+                      updated_at: Dolor eligendi.
+                      user_id: 5834212301389507050
+                    - completed: false
+                      created_at: Saepe fuga.
+                      description: Voluptatibus aut porro magni illo.
+                      id: 2013064543521667783
+                      title: Vel ut.
+                      updated_at: Dolor eligendi.
+                      user_id: 5834212301389507050
+                    - completed: false
+                      created_at: Saepe fuga.
+                      description: Voluptatibus aut porro magni illo.
+                      id: 2013064543521667783
+                      title: Vel ut.
+                      updated_at: Dolor eligendi.
+                      user_id: 5834212301389507050
+        description: ListResponseBody result type (default view)
+        example:
+            items:
+                - completed: false
+                  created_at: Saepe fuga.
+                  description: Voluptatibus aut porro magni illo.
+                  id: 2013064543521667783
+                  title: Vel ut.
+                  updated_at: Dolor eligendi.
+                  user_id: 5834212301389507050
+                - completed: false
+                  created_at: Saepe fuga.
+                  description: Voluptatibus aut porro magni illo.
+                  id: 2013064543521667783
+                  title: Vel ut.
+                  updated_at: Dolor eligendi.
+                  user_id: 5834212301389507050
+    TodoCreateRequestBody:
+        title: TodoCreateRequestBody
+        type: object
+        properties:
+            completed:
+                type: boolean
+                description: タスクが完了しているかどうか
+                default: false
+                example: true
+            description:
+                type: string
+                description: タスクの説明
+                example: zpf
+                minLength: 3
+            title:
+                type: string
+                description: タスクのタイトル
+                example: zsb
+                minLength: 3
+        example:
+            completed: false
+            description: tby
+            title: 9xc
+        required:
+            - title
+            - description
+    TodoResult:
+        title: TodoResult
+        type: object
+        properties:
+            completed:
+                type: boolean
+                description: タスクが完了しているかどうか
+                example: true
+            created_at:
+                type: string
+                description: 作成日時
+                example: Sit ea eligendi ut temporibus voluptas.
+            description:
+                type: string
+                description: タスクの説明
+                example: Excepturi facilis molestiae.
+            id:
+                type: integer
+                description: タスクのid
+                example: 6913201267649280824
+                format: int64
+            title:
+                type: string
+                description: タスクのタイトル
+                example: Neque quia facilis ea reiciendis illum.
+            updated_at:
+                type: string
+                description: 更新日時
+                example: Et dolorum accusantium odio.
+            user_id:
+                type: integer
+                description: ユーザーID
+                example: 6476284155760096072
+                format: int64
+        example:
+            completed: false
+            created_at: Numquam perspiciatis sint deserunt id eum est.
+            description: Nobis porro.
+            id: 5827679236840237303
+            title: Architecto laborum.
+            updated_at: Nihil aspernatur fuga nobis voluptatem ea.
+            user_id: 493204700324370985
+        required:
+            - id
+            - user_id
+            - title
+            - description
+            - completed
+            - created_at
+            - updated_at
+    TodoUpdateRequestBody:
+        title: TodoUpdateRequestBody
+        type: object
+        properties:
+            completed:
+                type: boolean
+                description: タスクが完了しているかどうか
+                example: false
+            description:
+                type: string
+                description: タスクの説明
+                example: 02m
+                minLength: 3
+            title:
+                type: string
+                description: タスクのタイトル
+                example: 9n9
+                minLength: 3
+        example:
+            completed: false
+            description: 6er
+            title: lpu
+    User:
+        title: User
+        type: object
+        properties:
+            email:
+                type: string
+                description: メールアドレス
+                example: rico@olsonromaguera.info
+                format: email
+            name:
+                type: string
+                description: ユーザー名
+                example: hxm
+                minLength: 3
+            password:
+                type: string
+                description: パスワード
+                example: tkc
+                minLength: 8
+        example:
+            email: shaylee_homenick@heathcote.com
+            name: hbr
+            password: 4kj
+        required:
+            - name
+            - email
+            - password
+    UserResult:
+        title: UserResult
+        type: object
+        properties:
+            created_at:
+                type: string
+                description: 作成日時
+                example: Ea ut rerum harum.
+            email:
+                type: string
+                description: メールアドレス
+                example: Cumque et et rem fuga id laborum.
+            id:
+                type: integer
+                description: userのid
+                example: 8004650916243898281
+                format: int64
+            name:
+                type: string
+                description: ユーザー名
+                example: Eius doloremque omnis.
+            updated_at:
+                type: string
+                description: 更新日時
+                example: Cumque eum.
+        example:
+            created_at: Inventore hic deleniti.
+            email: Consequatur autem consequatur tempore.
+            id: 344084206988749261
+            name: Quo impedit dolores sit sunt voluptatem.
+            updated_at: Vero doloremque doloremque itaque quis.
+        required:
+            - id
+            - name
+            - email
+            - created_at
+            - updated_at
+    UserUpdateRequestBody:
+        title: UserUpdateRequestBody
+        type: object
+        properties:
+            email:
+                type: string
+                description: メールアドレス
+                example: emily.kautzer@bogan.net
+                format: email
+            name:
+                type: string
+                description: ユーザー名
+                example: 5y4
+                minLength: 3
+        example:
+            email: owen_franecki@kshlerin.net
+            name: 1nb
